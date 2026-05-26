@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rohit A. Oak — Shopify Multi-Store Shipping Orchestration Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #111C2A;
+    --navy-mid: #182638;
+    --navy-light: #23344A;
+    --surface-soft: rgba(255,255,255,0.035);
+    --teal: #3B8490;
+    --teal-bright: #93D2DA;
+    --teal-glow: rgba(59,132,144,0.08);
+    --amber: #C58A2A;
+    --amber-light: #F8E9C7;
+    --white: #FFFFFF;
+    --off-white: #F8FAFC;
+    --slate: #475569;
+    --slate-light: #A8B3C2;
+    --border: #D6DEE8;
+    --bg-light: #F3F6FA;
+    --green: #059669;
+    --green-light: #D1FAE5;
+    --red-light: #FEE2E2;
+    --red: #DC2626;
+    --purple: #7C3AED;
+    --purple-light: #EDE9FE;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem;
+    height: 64px;
+    background: rgba(17,28,42,0.9);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(147,210,218,0.12);
+  }
+  .nav-brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--teal-bright);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--slate-light);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal-bright); }
+
+  /* ─── SECTIONS ─── */
+  section { padding: 6.75rem 0 5.25rem; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 2.75rem; }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(147,210,218,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(147,210,218,0.028) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.75;
+  }
+  .hero-glow {
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,132,144,0.08) 0%, transparent 68%);
+    top: -200px; right: -200px;
+    pointer-events: none;
+  }
+  .hero-glow-2 {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(197,138,42,0.045) 0%, transparent 70%);
+    bottom: 100px; left: -100px;
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto; padding: 0 2.75rem;
+    padding-top: 100px;
+  }
+  .hero-chip {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--teal-bright);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid rgba(147,210,218,0.22);
+    padding: 0.35rem 0.85rem;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.6s ease both;
+  }
+  .hero-chip::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal-bright);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .hero-title {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(2.6rem, 5vw, 4.55rem);
+    font-weight: 750;
+    line-height: 1.04;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s 0.1s ease both;
+  }
+  .hero-title .accent { color: var(--teal-bright); }
+  .hero-subtitle {
+    font-size: 1.12rem;
+    color: var(--slate-light);
+    max-width: 620px;
+    line-height: 1.65;
+    margin-bottom: 2.1rem;
+    animation: fadeInUp 0.6s 0.2s ease both;
+  }
+  .hero-pills {
+    display: flex; flex-wrap: wrap; gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s 0.3s ease both;
+  }
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+    background: rgba(147,210,218,0.075);
+    border: 1px solid rgba(147,210,218,0.16);
+    color: var(--teal-bright);
+    letter-spacing: 0.06em;
+  }
+  .cta-row {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;
+    margin-bottom: 3rem;
+    animation: fadeInUp 0.6s 0.35s ease both;
+  }
+  .demo-cta {
+    display: inline-flex; align-items: center; gap: 0.65rem;
+    min-height: 42px;
+    padding: 0.72rem 1.05rem;
+    border-radius: 3px;
+    border: 1px solid rgba(147,210,218,0.28);
+    background: rgba(147,210,218,0.075);
+    color: var(--white);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .demo-cta:hover {
+    background: rgba(147,210,218,0.11);
+    border-color: rgba(147,210,218,0.42);
+    transform: translateY(-1px);
+  }
+  .demo-cta-icon {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(147,210,218,0.14);
+    border: 1px solid rgba(147,210,218,0.18);
+    color: var(--teal-bright);
+    font-size: 0.62rem;
+    line-height: 1;
+  }
+  .cta-note {
+    max-width: 300px;
+    font-size: 0.78rem;
+    color: var(--slate-light);
+    line-height: 1.45;
+  }
+  .hero-stats {
+    display: flex; gap: 3rem;
+    animation: fadeInUp 0.6s 0.4s ease both;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(255,255,255,0.075);
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 0.3rem; }
+  .stat-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+  }
+  .stat-num span { color: var(--teal-bright); }
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--slate-light);
+    letter-spacing: 0.04em;
+  }
+  .hero-impact {
+    max-width: 820px;
+    margin-top: 2rem;
+    padding: 1.15rem 1.25rem;
+    border: 1px solid rgba(147,210,218,0.14);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.028);
+    animation: fadeInUp 0.6s 0.48s ease both;
+  }
+  .hero-impact-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal-bright);
+    margin-bottom: 0.8rem;
+  }
+  .hero-impact-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    list-style: none;
+  }
+  .hero-impact-list li {
+    font-size: 0.84rem;
+    color: var(--slate-light);
+    line-height: 1.45;
+    padding-left: 0.85rem;
+    position: relative;
+  }
+  .hero-impact-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--teal-bright);
+  }
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    font-size: 0.72rem; color: var(--slate-light); letter-spacing: 0.1em; text-transform: uppercase;
+    animation: fadeIn 1s 1s ease both;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, rgba(147,210,218,0.55), transparent);
+    animation: scrollPulse 1.8s infinite;
+  }
+  @keyframes scrollPulse {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ─── SECTION HEADERS ─── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal-bright);
+    margin-bottom: 0.85rem;
+  }
+  .section-title {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1.85rem, 3.1vw, 2.65rem);
+    font-weight: 720;
+    line-height: 1.14;
+    margin-bottom: 1rem;
+    color: var(--white);
+  }
+  .section-desc {
+    font-size: 1rem;
+    color: var(--slate-light);
+    max-width: 580px;
+    line-height: 1.7;
+    margin-bottom: 3.5rem;
+  }
+
+  /* ─── LIGHT SECTION ─── */
+  .section-light { background: var(--off-white); color: var(--navy); }
+  .section-light .section-title { color: var(--navy); }
+  .section-light .section-desc { color: var(--slate); }
+  .section-light .section-label { color: var(--teal); }
+
+  /* ─── PROBLEM ─── */
+  #problem { background: var(--navy-mid); }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  .problem-card {
+    background: var(--surface-soft);
+    border: 1px solid rgba(255,255,255,0.075);
+    border-radius: 4px;
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .problem-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: rgba(220,38,38,0.58);
+  }
+  .problem-card:hover {
+    border-color: rgba(147,210,218,0.18);
+    transform: translateY(-2px);
+  }
+  .problem-icon {
+    width: fit-content;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--teal-bright);
+    background: rgba(147,210,218,0.07);
+    border: 1px solid rgba(147,210,218,0.14);
+    padding: 0.25rem 0.48rem;
+    border-radius: 2px;
+    margin-bottom: 0.85rem;
+    display: block;
+  }
+  .problem-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: var(--white);
+  }
+  .problem-card p {
+    font-size: 0.875rem;
+    color: var(--slate-light);
+    line-height: 1.65;
+  }
+  .callout-box {
+    margin-top: 3rem;
+    padding: 1.5rem 2rem;
+    background: rgba(147,210,218,0.055);
+    border: 1px solid rgba(147,210,218,0.14);
+    border-left: 3px solid rgba(147,210,218,0.45);
+    border-radius: 2px;
+  }
+  .callout-box p {
+    font-size: 1rem;
+    color: var(--teal-bright);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* ─── ARCHITECTURE ─── */
+  #architecture { background: var(--navy); }
+  .arch-stack {
+    display: flex; flex-direction: column; gap: 0;
+    max-width: 780px;
+  }
+  .arch-layer {
+    display: flex; align-items: stretch;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: border-color 0.3s;
+  }
+  .arch-layer:first-child { border-radius: 4px 4px 0 0; }
+  .arch-layer:last-child { border-radius: 0 0 4px 4px; }
+  .arch-layer + .arch-layer { border-top: none; }
+  .arch-layer:hover { border-color: rgba(147,210,218,0.22); z-index: 1; }
+  .arch-num {
+    width: 56px; min-width: 56px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--teal-bright);
+    background: rgba(147,210,218,0.055);
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .arch-content {
+    flex: 1; padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem;
+  }
+  .arch-main { flex: 1; }
+  .arch-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal-bright);
+    margin-bottom: 0.3rem;
+  }
+  .arch-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .arch-detail {
+    font-size: 0.8rem;
+    color: var(--slate-light);
+    font-style: italic;
+    text-align: right;
+    max-width: 280px;
+  }
+  .arch-arrow {
+    display: flex; justify-content: flex-start;
+    padding-left: 56px;
+  }
+  .arch-arrow-line {
+    width: 1px; height: 20px;
+    background: linear-gradient(to bottom, rgba(147,210,218,0.45), transparent);
+    margin-left: 27px;
+  }
+  .principles-grid {
+    display: flex; flex-direction: column; gap: 0.6rem;
+    padding-left: 3rem;
+  }
+  .principle-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.45rem 1rem;
+    border: 1px solid rgba(147,210,218,0.18);
+    border-radius: 2px;
+    color: var(--teal-bright);
+    background: rgba(147,210,218,0.045);
+    text-align: center;
+    letter-spacing: 0.06em;
+    transition: background 0.2s;
+  }
+  .principle-tag:hover { background: rgba(147,210,218,0.075); }
+  .arch-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 3rem; align-items: start;
+  }
+
+  /* ─── CAPABILITIES ─── */
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  .cap-card {
+    background: var(--white);
+    border-radius: 4px;
+    padding: 1.75rem;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+  }
+  .cap-card:hover {
+    box-shadow: 0 10px 32px rgba(17,28,42,0.08);
+    transform: translateY(-2px);
+  }
+  .cap-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--teal);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+    opacity: 0.25;
+    position: absolute; top: 1.25rem; right: 1.25rem;
+  }
+  .cap-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.6rem;
+    padding-right: 2rem;
+  }
+  .cap-card p {
+    font-size: 0.875rem;
+    color: var(--slate);
+    line-height: 1.65;
+  }
+  .cap-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  /* ─── ORCHESTRATION ─── */
+  #orchestration { background: var(--navy); }
+  .orch-def {
+    padding: 1.25rem 1.75rem;
+    border: 1px solid rgba(147,210,218,0.16);
+    border-left: 3px solid rgba(147,210,218,0.48);
+    background: rgba(147,210,218,0.045);
+    border-radius: 2px;
+    margin-bottom: 3rem;
+    font-size: 0.95rem;
+    color: var(--teal-bright);
+    font-style: italic;
+    line-height: 1.65;
+  }
+  .orch-pipeline {
+    display: flex; align-items: stretch; gap: 0;
+    margin-bottom: 3rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  .orch-step {
+    flex: 1; min-width: 130px;
+    display: flex; flex-direction: column; align-items: center;
+    position: relative;
+  }
+  .orch-step-box {
+    width: 100%;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.075);
+    padding: 1.25rem 0.75rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    transition: background 0.3s;
+  }
+  .orch-step:hover .orch-step-box { background: rgba(147,210,218,0.06); }
+  .orch-step-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .orch-step-icon {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--slate-light);
+  }
+  .orch-step-label {
+    font-size: 0.78rem;
+    color: var(--white);
+    text-align: center;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .orch-arrow {
+    display: flex; align-items: center;
+    padding: 0 0.25rem;
+    color: var(--amber);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .transform-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+  }
+  .transform-card {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 4px;
+    padding: 1.25rem;
+  }
+  .transform-before {
+    font-size: 0.8rem;
+    color: var(--slate-light);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    text-decoration: line-through;
+    text-decoration-color: rgba(148,163,184,0.4);
+  }
+  .transform-after {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--teal-bright);
+  }
+  .transform-after::before { content: '→  '; color: var(--amber); }
+
+  /* ─── DRIFT ─── */
+  #drift { background: var(--off-white); color: var(--navy); }
+  .drift-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .drift-panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(17,28,42,0.055);
+  }
+  .drift-panel-header {
+    padding: 1rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .drift-panel-header.source { background: #E8F4F6; color: #275F69; }
+  .drift-panel-header.dest { background: #F8EED6; color: #7A5A1F; }
+  .drift-panel-header.recon { background: var(--navy); color: var(--teal-bright); }
+  .drift-row {
+    display: grid; grid-template-columns: 1.5fr 1fr 0.4fr 1fr auto;
+    align-items: center;
+    padding: 0.7rem 1.25rem;
+    border-bottom: 1px solid var(--bg-light);
+    font-size: 0.875rem;
+    gap: 0.5rem;
+    transition: background 0.2s;
+  }
+  .drift-row:hover { background: var(--bg-light); }
+  .drift-row.drifted { background: #FCF6EC; }
+  .drift-row.drifted:hover { background: #F8EFDF; }
+  .drift-field { color: var(--slate); font-size: 0.82rem; }
+  .drift-val { font-weight: 600; color: var(--navy); font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+  .drift-val.changed { color: var(--red); }
+  .drift-eq { text-align: center; font-weight: 700; font-size: 1rem; }
+  .drift-eq.ok { color: var(--green); }
+  .drift-eq.diff { color: var(--red); }
+  .drift-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .drift-badge.drift { background: var(--red-light); color: var(--red); }
+  .drift-badge.ok { background: var(--green-light); color: var(--green); }
+  .recon-row {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--bg-light);
+    transition: background 0.2s;
+  }
+  .recon-row:hover { background: var(--bg-light); }
+  .recon-action {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .recon-action.update { background: var(--red-light); color: var(--red); }
+  .recon-action.skip { background: var(--green-light); color: var(--green); }
+  .recon-action.protected { background: var(--purple-light); color: var(--purple); }
+  .recon-detail h4 { font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 0.2rem; }
+  .recon-detail p { font-size: 0.8rem; color: var(--slate); }
+  .recon-summary {
+    padding: 1rem 1.25rem;
+    background: var(--navy);
+    display: flex; gap: 0; flex-wrap: wrap;
+  }
+  .recon-summary-item {
+    flex: 1; text-align: center;
+    padding: 0.5rem;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  .recon-summary-item:last-child { border-right: none; }
+  .recon-summary-num { font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--teal-bright); }
+  .recon-summary-label { font-size: 0.7rem; color: var(--slate-light); }
+  .dry-run-bar {
+    padding: 0.6rem 1.25rem;
+    background: var(--green-light);
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.8rem; font-weight: 600; color: var(--green);
+    border-bottom: 1px solid #BBF7D0;
+  }
+
+  /* ─── CHALLENGES ─── */
+  #challenges { background: var(--navy-mid); }
+  .challenge-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+  }
+  .challenge-card {
+    background: var(--surface-soft);
+    border: 1px solid rgba(255,255,255,0.075);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .challenge-card:hover {
+    border-color: rgba(147,210,218,0.18);
+    transform: translateY(-2px);
+  }
+  .challenge-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    background: rgba(147,210,218,0.06);
+    border: 1px solid rgba(147,210,218,0.14);
+    color: var(--teal-bright);
+    border-radius: 2px;
+    margin-bottom: 0.75rem;
+    display: inline-block;
+  }
+  .challenge-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.85rem; color: var(--white); }
+  .challenge-prob {
+    font-size: 0.82rem; color: var(--slate-light); line-height: 1.6;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .challenge-sol {
+    font-size: 0.82rem; color: var(--green); line-height: 1.6;
+  }
+  .challenge-sol::before { content: '✓  '; }
+
+  /* ─── ZONES ─── */
+  #zones { background: var(--navy); }
+  .zones-layout { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem; align-items: start; }
+  .zones-middle { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 5rem; gap: 0.5rem; }
+  .zones-arrow {
+    width: 48px; height: 48px;
+    background: rgba(197,138,42,0.08);
+    border: 1px solid rgba(197,138,42,0.18);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--amber); font-size: 1.2rem;
+  }
+  .zones-label { font-size: 0.7rem; color: var(--slate-light); text-align: center; font-style: italic; }
+  .zones-panel { border: 1px solid rgba(255,255,255,0.075); border-radius: 4px; overflow: hidden; }
+  .zones-panel-header {
+    padding: 0.85rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .zones-panel-header.src { background: rgba(147,210,218,0.06); color: var(--teal-bright); border-bottom: 1px solid rgba(147,210,218,0.12); }
+  .zones-panel-header.dst { background: rgba(255,255,255,0.035); color: var(--teal-bright); border-bottom: 1px solid rgba(147,210,218,0.12); }
+  .zone-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+  }
+  .zone-row:hover { background: rgba(255,255,255,0.02); }
+  .zone-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .zone-info { flex: 1; }
+  .zone-name { font-size: 0.9rem; font-weight: 600; color: var(--white); }
+  .zone-desc { font-size: 0.75rem; color: var(--slate-light); margin-top: 0.15rem; }
+  .zone-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.06em; padding: 0.2rem 0.55rem;
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .zone-status.synced { background: var(--green-light); color: var(--green); }
+  .zone-status.updated { background: #FEF3C7; color: #D97706; }
+  .zone-status.protected { background: var(--purple-light); color: var(--purple); }
+
+  /* ─── STACK ─── */
+  .stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .stack-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem;
+    transition: box-shadow 0.3s, transform 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .stack-card:hover { box-shadow: 0 10px 32px rgba(17,28,42,0.08); transform: translateY(-2px); }
+  .stack-layer-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.1em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    background: var(--bg-light);
+    color: var(--slate);
+    display: inline-block; margin-bottom: 0.85rem;
+  }
+  .stack-name { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .stack-role { font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 0.75rem; }
+  .stack-detail { font-size: 0.82rem; color: var(--slate); line-height: 1.6; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+  .stack-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+
+  /* ─── LEARNINGS ─── */
+  #learnings { background: var(--navy); }
+  .learnings-list { display: flex; flex-direction: column; gap: 0; max-width: 820px; }
+  .learning-item {
+    display: flex; align-items: flex-start; gap: 1.5rem;
+    padding: 1.35rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: padding-left 0.3s;
+  }
+  .learning-item:hover { padding-left: 0.5rem; }
+  .learning-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--teal-bright);
+    width: 28px; flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .learning-text { font-size: 1rem; color: var(--slate-light); line-height: 1.65; }
+  .learning-text strong { color: var(--white); font-weight: 600; }
+  .transition-banner {
+    margin-top: 3.5rem;
+    padding: 2rem 2.5rem;
+    background: rgba(59,132,144,0.72);
+    border: 1px solid rgba(147,210,218,0.16);
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  /* ─── ROLE FIT ─── */
+  .role-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .role-chip {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.6rem 1.1rem;
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--navy);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .role-chip:hover { background: #E8F4F6; border-color: rgba(59,132,144,0.45); }
+  .role-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+  /* ─── CONTACT / FOOTER ─── */
+  #contact {
+    background: var(--navy-mid);
+    padding: 7rem 0 4rem;
+  }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+  .contact-headline {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 750;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+  .contact-headline .accent { color: var(--teal-bright); }
+  .contact-links { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+  .contact-cta-row {
+    margin-top: 2rem;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 0.65rem;
+  }
+  .contact-link {
+    display: flex; align-items: center; gap: 1rem;
+    font-size: 0.95rem; color: var(--slate-light);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .contact-link:hover { color: var(--teal-bright); }
+  .contact-link-icon {
+    width: 36px; height: 36px; border-radius: 2px;
+    background: rgba(147,210,218,0.055);
+    border: 1px solid rgba(147,210,218,0.14);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: var(--teal-bright);
+    flex-shrink: 0;
+  }
+  .project-sidebar {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.075);
+    border-radius: 4px;
+    padding: 1.75rem;
+  }
+  .project-sidebar h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--teal-bright); margin-bottom: 1.25rem;
+  }
+  .sidebar-list { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+  .sidebar-list li {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.875rem; color: var(--slate-light);
+  }
+  .sidebar-list li::before {
+    content: '';
+    width: 4px; height: 4px; border-radius: 50%;
+    background: rgba(147,210,218,0.62); flex-shrink: 0;
+  }
+  .footer-bar {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.78rem; color: var(--slate-light);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .problem-grid, .cap-grid, .challenge-grid, .stack-grid { grid-template-columns: 1fr 1fr; }
+    .drift-grid, .zones-layout, .contact-grid { grid-template-columns: 1fr; }
+    .zones-middle { flex-direction: row; padding-top: 0; padding: 1.5rem 0; }
+    .arch-row { grid-template-columns: 1fr; }
+    .principles-grid { flex-direction: row; flex-wrap: wrap; padding-left: 0; padding-top: 1.5rem; }
+    .transform-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 6rem 0 4.75rem; }
+  }
+  @media (max-width: 640px) {
+    .problem-grid, .cap-grid, .challenge-grid, .stack-grid { grid-template-columns: 1fr; }
+    .container, .hero-inner { padding-left: 1.35rem; padding-right: 1.35rem; }
+    .hero-title { font-size: clamp(2.45rem, 13vw, 3.5rem); }
+    .hero-subtitle { font-size: 1.02rem; }
+    .cta-row { align-items: stretch; flex-direction: column; }
+    .demo-cta { justify-content: center; width: 100%; }
+    .cta-note { max-width: none; }
+    .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.35rem; }
+    .hero-impact-list { grid-template-columns: 1fr; gap: 0.6rem; }
+    .orch-pipeline { gap: 0; }
+    .transform-grid { grid-template-columns: 1fr; }
+    .arch-content { flex-direction: column; align-items: flex-start; }
+    .arch-detail { text-align: left; max-width: none; }
+    .drift-row { grid-template-columns: 1fr; gap: 0.35rem; align-items: start; }
+    .drift-eq { text-align: left; }
+    .zone-row { align-items: flex-start; flex-wrap: wrap; }
+    .zone-status { margin-left: 44px; }
+    .footer-bar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Rohit A. Oak · Portfolio</div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#capabilities">Capabilities</a></li>
+    <li><a href="#drift">Validation</a></li>
+    <li><a href="#zones">Zones</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-inner">
+    <div class="hero-chip">Case Study · Platform Engineering</div>
+    <h1 class="hero-title">
+      Shopify Multi-Store<br>
+      <span class="accent">Shipping Synchronization</span><br>
+      &amp; Orchestration Platform
+    </h1>
+    <p class="hero-subtitle">
+      API-first platform for synchronizing and validating Shopify shipping configurations across multiple stores.
+    </p>
+    <div class="hero-pills">
+      <span class="pill">Multi-Store Sync</span>
+      <span class="pill">Drift Detection</span>
+      <span class="pill">Validation Workflow</span>
+      <span class="pill">n8n Automation</span>
+      <span class="pill">Shopify GraphQL APIs</span>
+      <span class="pill">Safe Reruns</span>
+    </div>
+    <div class="cta-row">
+      <a class="demo-cta" href="https://youtu.be/_3XUWcg0UV4" target="_blank" rel="noopener noreferrer" aria-label="Watch workflow demo video in a new tab">
+        <span class="demo-cta-icon">▶</span>
+        Watch Workflow Demo
+      </a>
+      <div class="cta-note">Proof of the working system: n8n workflow, drift checks, and validation path.</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">7<span>+</span></div>
+        <div class="stat-label">Shipping Zones Synchronized</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Manual Store Updates Required</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">100<span>%</span></div>
+        <div class="stat-label">API-Driven Operations</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Safe Repeat Runs</div>
+      </div>
+    </div>
+    <div class="hero-impact">
+      <div class="hero-impact-title">Business Impact</div>
+      <ul class="hero-impact-list">
+        <li>Eliminated repetitive manual store updates</li>
+        <li>Reduced operational drift risk</li>
+        <li>Enabled scalable multi-store synchronization</li>
+        <li>Improved shipping configuration consistency</li>
+      </ul>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- CONTEXT BAND -->
+<div style="background: var(--teal); padding: 1.1rem 0;">
+  <div class="container" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <div style="font-size:0.875rem; color:rgba(255,255,255,0.9);">
+      <strong>Rohit A. Oak</strong> · Technical Delivery Manager · 18+ Years Enterprise BFSI · Modernizing into Platform &amp; Automation Engineering
+    </div>
+    <div style="font-family:'DM Mono',monospace; font-size:0.72rem; color:rgba(255,255,255,0.7); letter-spacing:0.06em;">
+      Mumbai, India · oak.rohit@gmail.com
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="section-label reveal">The Operational Problem</div>
+    <h2 class="section-title reveal">Why manual Shopify shipping<br>management breaks at scale</h2>
+    <p class="section-desc reveal">Multi-store teams need shipping changes to stay consistent across regions, zones, and pricing rules without relying on repeated manual admin work.</p>
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <span class="problem-icon">DRIFT</span>
+        <h3>Configuration Drift</h3>
+        <p>Stores diverge silently. An update applied to Store A never reaches Store B or C. Pricing inconsistencies accumulate undetected across the estate.</p>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">REPEAT</span>
+        <h3>Manual Repetition at Scale</h3>
+        <p>Every change requires identical navigation across multiple admin panels. Zero leverage. Effort multiplies linearly — and painfully — with store count.</p>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">RISK</span>
+        <h3>Human Error Under Pressure</h3>
+        <p>Manual entry under time pressure introduces pricing errors, missing zones, and incorrect subtotal ranges that are difficult to detect without a structured comparison.</p>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">SCALE</span>
+        <h3>Scaling Impossibility</h3>
+        <p>3 stores × 7 zones × N slabs × M country mappings = an operationally unmaintainable surface area for any team without automation infrastructure.</p>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">AUDIT</span>
+        <h3>No Structured Audit Trail</h3>
+        <p>Manual changes leave no reliable operations record. Drift detection requires manual cross-store comparison — a slow, error-prone, and unscalable process.</p>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">API</span>
+        <h3>UI Automation Fragility</h3>
+        <p>Browser automation via Selenium or click-scripts breaks on layout changes, cannot be validated pre-execution, and provides no structured operational record.</p>
+      </div>
+    </div>
+    <div class="callout-box reveal">
+      <p>"The scalable answer: move repetitive UI work into an API-first workflow that detects drift, validates changes, and applies controlled updates."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-label reveal">System Architecture</div>
+    <h2 class="section-title reveal">API-first workflow<br>and validation design</h2>
+    <p class="section-desc reveal">Five clear layers turn a risky manual process into a controlled operational system with scheduling, validation, API updates, and reporting.</p>
+    <div class="arch-row">
+      <div>
+        <div class="arch-stack">
+          <div class="arch-layer reveal" style="background:rgba(27,46,69,0.9)">
+            <div class="arch-num">01</div>
+            <div class="arch-content">
+              <div class="arch-main">
+                <div class="arch-badge">Orchestration Layer</div>
+                <div class="arch-name">n8n Workflow Engine</div>
+              </div>
+              <div class="arch-detail">Triggers · Scheduling · Stage Coordination · Logging</div>
+            </div>
+          </div>
+          <div class="arch-arrow"><div class="arch-arrow-line"></div></div>
+          <div class="arch-layer reveal" style="background:rgba(14,116,144,0.15)">
+            <div class="arch-num">02</div>
+            <div class="arch-content">
+              <div class="arch-main">
+                <div class="arch-badge">API Gateway Layer</div>
+                <div class="arch-name">Flask REST API</div>
+              </div>
+              <div class="arch-detail">Endpoint routing · Request handling · Response formatting</div>
+            </div>
+          </div>
+          <div class="arch-arrow"><div class="arch-arrow-line"></div></div>
+          <div class="arch-layer reveal" style="background:rgba(13,27,42,0.9)">
+            <div class="arch-num">03</div>
+            <div class="arch-content">
+              <div class="arch-main">
+                <div class="arch-badge">Validation Service</div>
+                <div class="arch-name">Python Sync Service</div>
+              </div>
+              <div class="arch-detail">Drift detection · Validation workflow · State comparison · Controlled updates</div>
+            </div>
+          </div>
+          <div class="arch-arrow"><div class="arch-arrow-line"></div></div>
+          <div class="arch-layer reveal" style="background:rgba(16,58,80,0.9)">
+            <div class="arch-num">04</div>
+            <div class="arch-content">
+              <div class="arch-main">
+                <div class="arch-badge">Integration Layer</div>
+                <div class="arch-name">Shopify GraphQL APIs</div>
+              </div>
+              <div class="arch-detail">Delivery profiles · Shipping zones · Country mappings · Subtotal slabs</div>
+            </div>
+          </div>
+          <div class="arch-arrow"><div class="arch-arrow-line"></div></div>
+          <div class="arch-layer reveal" style="background:rgba(10,37,53,0.9)">
+            <div class="arch-num">05</div>
+            <div class="arch-content">
+              <div class="arch-main">
+                <div class="arch-badge">Data Layer</div>
+                <div class="arch-name">Destination Stores</div>
+              </div>
+              <div class="arch-detail">Store A · Store B · Store N — consistent desired state enforced</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="principles-grid reveal">
+        <div class="principle-tag">API-First</div>
+        <div class="principle-tag">Safe Reruns</div>
+        <div class="principle-tag">Validated State</div>
+        <div class="principle-tag">Targeted Updates</div>
+        <div class="principle-tag">Auditable</div>
+        <div class="principle-tag">Orchestrated</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section id="capabilities" class="section-light">
+  <div class="container">
+    <div class="section-label reveal">Core Engineering Capabilities</div>
+    <h2 class="section-title reveal">Six capabilities that make<br>the workflow production-safe</h2>
+    <p class="section-desc reveal">Each capability addresses an operational risk: inconsistent stores, manual errors, unsafe reruns, or lack of validation before production changes.</p>
+    <div class="cap-grid">
+      <div class="cap-card reveal">
+        <div class="cap-bar" style="background: #0E7490;"></div>
+        <div class="cap-num">01</div>
+        <h3>Multi-Store Consistency</h3>
+        <p>Keeps delivery profiles, shipping zones, country mappings, pricing rules, and operational configuration aligned across stores.</p>
+      </div>
+      <div class="cap-card reveal">
+        <div class="cap-bar" style="background: #0284C7;"></div>
+        <div class="cap-num">02</div>
+        <h3>Drift Detection</h3>
+        <p>Compares source and destination state at the operational level, identifying meaningful drift before any production update is attempted.</p>
+      </div>
+      <div class="cap-card reveal">
+        <div class="cap-bar" style="background: #7C3AED;"></div>
+        <div class="cap-num">03</div>
+        <h3>Targeted API Updates</h3>
+        <p>Applies targeted API updates only where drift is confirmed, preserving stable configuration and avoiding unnecessary reconstruction.</p>
+      </div>
+      <div class="cap-card reveal">
+        <div class="cap-bar" style="background: #059669;"></div>
+        <div class="cap-num">04</div>
+        <h3>Safe Repeat Execution</h3>
+        <p>Repeated runs preserve stable structures, avoid duplicate updates, and produce predictable output that operators can trust.</p>
+      </div>
+      <div class="cap-card reveal">
+        <div class="cap-bar" style="background: #D97706;"></div>
+        <div class="cap-num">05</div>
+        <h3>Dry-Run Validation</h3>
+        <p>Supports dry-run review, validation summaries, and staged checks before committing production changes.</p>
+      </div>
+      <div class="cap-card reveal">
+        <div class="cap-bar" style="background: #DC2626;"></div>
+        <div class="cap-num">06</div>
+        <h3>Workflow Automation</h3>
+        <p>n8n coordinates trigger → export → analyze → review → execute → validate → report, turning isolated tasks into a reliable operating process.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ORCHESTRATION -->
+<section id="orchestration">
+  <div class="container">
+    <div class="section-label reveal">n8n Workflow</div>
+    <h2 class="section-title reveal">From manual task to<br>repeatable operating process</h2>
+    <div class="orch-def reveal">
+      The workflow coordinates APIs, validation stages, operator review, controlled updates, and reporting into a repeatable process.
+    </div>
+    <div class="orch-pipeline reveal">
+      <div class="orch-step">
+        <div class="orch-step-box">
+          <div class="orch-step-num">1</div>
+          <div class="orch-step-icon">TRG</div>
+          <div class="orch-step-label">Trigger<br>Workflow</div>
+        </div>
+      </div>
+      <div class="orch-arrow">›</div>
+      <div class="orch-step">
+        <div class="orch-step-box">
+          <div class="orch-step-num">2</div>
+          <div class="orch-step-icon">EXP</div>
+          <div class="orch-step-label">Export Source<br>Config</div>
+        </div>
+      </div>
+      <div class="orch-arrow">›</div>
+      <div class="orch-step">
+        <div class="orch-step-box">
+          <div class="orch-step-num">3</div>
+          <div class="orch-step-icon">ANL</div>
+          <div class="orch-step-label">Dry Run /<br>Drift Analysis</div>
+        </div>
+      </div>
+      <div class="orch-arrow">›</div>
+      <div class="orch-step">
+        <div class="orch-step-box">
+          <div class="orch-step-num">4</div>
+          <div class="orch-step-icon">REV</div>
+          <div class="orch-step-label">Review<br>Validation Summary</div>
+        </div>
+      </div>
+      <div class="orch-arrow">›</div>
+      <div class="orch-step">
+        <div class="orch-step-box">
+          <div class="orch-step-num">5</div>
+          <div class="orch-step-icon">EXEC</div>
+          <div class="orch-step-label">Execute<br>Targeted Updates</div>
+        </div>
+      </div>
+      <div class="orch-arrow">›</div>
+      <div class="orch-step">
+        <div class="orch-step-box">
+          <div class="orch-step-num">6</div>
+          <div class="orch-step-icon">VAL</div>
+          <div class="orch-step-label">Validate<br>Destination</div>
+        </div>
+      </div>
+      <div class="orch-arrow">›</div>
+      <div class="orch-step">
+        <div class="orch-step-box">
+          <div class="orch-step-num">7</div>
+          <div class="orch-step-icon">LOG</div>
+          <div class="orch-step-label">Generate<br>Logs & Reports</div>
+        </div>
+      </div>
+    </div>
+    <div class="transform-grid reveal">
+      <div class="transform-card">
+        <div class="transform-before">Manual task</div>
+        <div class="transform-after">Repeatable workflow</div>
+      </div>
+      <div class="transform-card">
+        <div class="transform-before">Manual execution</div>
+        <div class="transform-after">Scheduled automation</div>
+      </div>
+      <div class="transform-card">
+        <div class="transform-before">No validation</div>
+        <div class="transform-after">Validation before commit</div>
+      </div>
+      <div class="transform-card">
+        <div class="transform-before">No audit trail</div>
+        <div class="transform-after">Logs &amp; reports generated</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DRIFT -->
+<section id="drift" class="section-light">
+  <div class="container">
+    <div class="section-label reveal">Drift Detection &amp; Validation</div>
+    <h2 class="section-title reveal">How the workflow detects drift<br>and validates safe updates</h2>
+    <p class="section-desc reveal">The workflow compares source and destination state, identifies meaningful drift, and produces an implementation-safe validation summary before production updates are applied.</p>
+    <div class="drift-grid">
+      <div class="reveal">
+        <div class="drift-panel">
+          <div class="drift-panel-header source">Source vs Destination Comparison</div>
+          <div class="drift-row" style="background:#F8FAFC; border-bottom:2px solid #E2E8F0;">
+            <div style="font-size:0.72rem;color:var(--slate);font-weight:600;">Zone / Field</div>
+            <div style="font-size:0.72rem;color:#0C4A6E;font-weight:600;">Source</div>
+            <div></div>
+            <div style="font-size:0.72rem;color:#92400E;font-weight:600;">Destination</div>
+            <div></div>
+          </div>
+          <div class="drift-row drifted">
+            <div class="drift-field">France Zone</div>
+            <div class="drift-val">£55.75</div>
+            <div class="drift-eq diff">≠</div>
+            <div class="drift-val changed">£54.75</div>
+            <div class="drift-badge drift">DRIFT</div>
+          </div>
+          <div class="drift-row">
+            <div class="drift-field">Belgium Zone</div>
+            <div class="drift-val">£12.00</div>
+            <div class="drift-eq ok">=</div>
+            <div class="drift-val">£12.00</div>
+            <div class="drift-badge ok">STABLE</div>
+          </div>
+          <div class="drift-row">
+            <div class="drift-field">Germany Slab</div>
+            <div class="drift-val">£0–£50</div>
+            <div class="drift-eq ok">=</div>
+            <div class="drift-val">£0–£50</div>
+            <div class="drift-badge ok">STABLE</div>
+          </div>
+          <div class="drift-row drifted">
+            <div class="drift-field">Italy Slab 2</div>
+            <div class="drift-val">£45.00</div>
+            <div class="drift-eq diff">≠</div>
+            <div class="drift-val changed">£42.50</div>
+            <div class="drift-badge drift">DRIFT</div>
+          </div>
+          <div class="drift-row">
+            <div class="drift-field">Netherlands</div>
+            <div class="drift-val">Active</div>
+            <div class="drift-eq ok">=</div>
+            <div class="drift-val">Active</div>
+            <div class="drift-badge ok">STABLE</div>
+          </div>
+          <div class="drift-row">
+            <div class="drift-field">DOM Threshold</div>
+            <div class="drift-val">£30.00</div>
+            <div class="drift-eq ok">=</div>
+            <div class="drift-val">£30.00</div>
+            <div class="drift-badge ok">STABLE</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="drift-panel">
+          <div class="drift-panel-header recon">Operational Validation Summary</div>
+          <div class="dry-run-bar">✓ DRY-RUN MODE — Validation completed, no production updates committed</div>
+          <div class="recon-row">
+            <div class="recon-action update">UPDATE</div>
+            <div class="recon-detail">
+              <h4>France Shipping Zone</h4>
+              <p>Detected drift — targeted API update prepared for operator review</p>
+            </div>
+          </div>
+          <div class="recon-row">
+            <div class="recon-action update">UPDATE</div>
+            <div class="recon-detail">
+              <h4>Italy Shipping Zone</h4>
+              <p>Detected drift — stable zone structure preserved</p>
+            </div>
+          </div>
+          <div class="recon-row">
+            <div class="recon-action skip">SKIP</div>
+            <div class="recon-detail">
+              <h4>Belgium Zone</h4>
+              <p>No changes detected — configuration stable</p>
+            </div>
+          </div>
+          <div class="recon-row">
+            <div class="recon-action skip">SKIP</div>
+            <div class="recon-detail">
+              <h4>Germany Zone</h4>
+              <p>No changes detected — configuration stable</p>
+            </div>
+          </div>
+          <div class="recon-row">
+            <div class="recon-action skip">SKIP</div>
+            <div class="recon-detail">
+              <h4>Netherlands Zone</h4>
+              <p>No changes detected — configuration stable</p>
+            </div>
+          </div>
+          <div class="recon-row">
+            <div class="recon-action protected">PROTECTED</div>
+            <div class="recon-detail">
+              <h4>Domestic Zone</h4>
+              <p>Protected zone — preserved, no production update attempted</p>
+            </div>
+          </div>
+          <div class="recon-summary">
+            <div class="recon-summary-item">
+              <div class="recon-summary-num">2</div>
+              <div class="recon-summary-label">Updates Planned</div>
+            </div>
+            <div class="recon-summary-item">
+              <div class="recon-summary-num">4</div>
+              <div class="recon-summary-label">Zones Stable</div>
+            </div>
+            <div class="recon-summary-item">
+              <div class="recon-summary-num">0</div>
+              <div class="recon-summary-label">Zone Recreations</div>
+            </div>
+            <div class="recon-summary-item">
+              <div class="recon-summary-num">0</div>
+              <div class="recon-summary-label">Duplicate Updates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHALLENGES -->
+<section id="challenges">
+  <div class="container">
+    <div class="section-label reveal">Engineering Challenges Solved</div>
+    <h2 class="section-title reveal">Real-world constraints handled<br>without fragile workarounds</h2>
+    <p class="section-desc reveal">The strongest signal in this project is not the UI — it is the ability to handle platform constraints, protected configuration, safe reruns, and validation before production change.</p>
+    <div class="challenge-grid">
+      <div class="challenge-card reveal">
+        <div class="challenge-tag">Constraint Resolution</div>
+        <h3>Platform Constraint Handling</h3>
+        <div class="challenge-prob">Shopify enforces strict shipping-region ownership rules that can block synchronization when configuration changes are applied out of sequence.</div>
+        <div class="challenge-sol">Added a controlled synchronization path that respects platform constraints and validates the resulting zone state before completion.</div>
+      </div>
+      <div class="challenge-card reveal">
+        <div class="challenge-tag">Safe Handling</div>
+        <h3>Protected Domestic Zone</h3>
+        <div class="challenge-prob">The Domestic zone is a Shopify-protected entity that cannot be deleted, recreated, or restructured via API like custom zones.</div>
+        <div class="challenge-sol">Workflow identifies protected configuration areas and routes them through a preservation path — no production update attempted, structure maintained.</div>
+      </div>
+      <div class="challenge-card reveal">
+        <div class="challenge-tag">Idempotency</div>
+        <h3>Duplicate Update Prevention</h3>
+        <div class="challenge-prob">Reruns can create duplicate operational changes if the workflow cannot distinguish stable records from records that require attention.</div>
+        <div class="challenge-sol">Stable validation controls confirm existing configuration before applying updates and skip unchanged records during reruns.</div>
+      </div>
+      <div class="challenge-card reveal">
+        <div class="challenge-tag">State Management</div>
+        <h3>Stable 7-Zone Preservation</h3>
+        <div class="challenge-prob">Maintaining exact zone structure across reruns while allowing targeted updates without collateral changes.</div>
+        <div class="challenge-sol">Staged validation confirms desired operational state first, then applies controlled updates while stable zones are skipped.</div>
+      </div>
+      <div class="challenge-card reveal">
+        <div class="challenge-tag">Architecture</div>
+        <h3>Staged Execution Workflow</h3>
+        <div class="challenge-prob">Early versions needed clearer separation between validation, review, and production update stages.</div>
+        <div class="challenge-sol">Introduced a multi-stage execution workflow where validation completes before controlled updates are applied.</div>
+      </div>
+      <div class="challenge-card reveal">
+        <div class="challenge-tag">Validation</div>
+        <h3>Dry-Run Validation Workflow</h3>
+        <div class="challenge-prob">Needed a way to validate operational impact before committing — especially for complex multi-zone synchronizations in production.</div>
+        <div class="challenge-sol">Dry-run mode validates the full workflow and produces a recruiter-safe summary of planned outcomes. Zero production updates are committed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ZONES -->
+<section id="zones">
+  <div class="container">
+    <div class="section-label reveal">Final Zone Architecture</div>
+    <h2 class="section-title reveal">7-zone structure preserved<br>across all reruns</h2>
+    <p class="section-desc reveal">The workflow maintained the expected zone structure across source and destination stores while applying only validated changes.</p>
+    <div class="zones-layout">
+      <div class="reveal">
+        <div class="zones-panel">
+          <div class="zones-panel-header src">
+            <span>Source Store — Delivery Profile</span>
+            <span style="font-size:0.65rem;opacity:0.7;">7 zones</span>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(124,58,237,0.12);color:#7C3AED;">1</div>
+            <div class="zone-info"><div class="zone-name">Domestic</div><div class="zone-desc">UK local fulfilment — protected entity</div></div>
+            <div class="zone-status protected">PROTECTED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">2</div>
+            <div class="zone-info"><div class="zone-name">International</div><div class="zone-desc">Global shipping — base profile</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">3</div>
+            <div class="zone-info"><div class="zone-name">Belgium</div><div class="zone-desc">BE specific pricing &amp; slabs</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(245,158,11,0.12);color:#D97706;">4</div>
+            <div class="zone-info"><div class="zone-name">France</div><div class="zone-desc">FR pricing — updated slab applied</div></div>
+            <div class="zone-status updated">UPDATED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">5</div>
+            <div class="zone-info"><div class="zone-name">Germany</div><div class="zone-desc">DE specific configuration</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(245,158,11,0.12);color:#D97706;">6</div>
+            <div class="zone-info"><div class="zone-name">Italy</div><div class="zone-desc">IT config — slab price corrected</div></div>
+            <div class="zone-status updated">UPDATED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">7</div>
+            <div class="zone-info"><div class="zone-name">Netherlands</div><div class="zone-desc">NL shipping — confirmed stable</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+        </div>
+      </div>
+      <div class="zones-middle reveal">
+        <div class="zones-arrow">›</div>
+        <div class="zones-label">Synchronized<br>by Workflow</div>
+      </div>
+      <div class="reveal">
+        <div class="zones-panel">
+          <div class="zones-panel-header dst">
+            <span>Destination Store — Reconciled State</span>
+            <span style="font-size:0.65rem;opacity:0.7;">✓ verified</span>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(124,58,237,0.12);color:#7C3AED;">1</div>
+            <div class="zone-info"><div class="zone-name">Domestic</div><div class="zone-desc">Preserved — no production update attempted</div></div>
+            <div class="zone-status protected">PROTECTED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">2</div>
+            <div class="zone-info"><div class="zone-name">International</div><div class="zone-desc">Confirmed stable — no changes</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">3</div>
+            <div class="zone-info"><div class="zone-name">Belgium</div><div class="zone-desc">Confirmed stable — no changes</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(245,158,11,0.12);color:#D97706;">4</div>
+            <div class="zone-info"><div class="zone-name">France</div><div class="zone-desc">Updated by validation workflow</div></div>
+            <div class="zone-status updated">UPDATED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">5</div>
+            <div class="zone-info"><div class="zone-name">Germany</div><div class="zone-desc">Confirmed stable — no changes</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(245,158,11,0.12);color:#D97706;">6</div>
+            <div class="zone-info"><div class="zone-name">Italy</div><div class="zone-desc">Updated by validation workflow</div></div>
+            <div class="zone-status updated">UPDATED</div>
+          </div>
+          <div class="zone-row">
+            <div class="zone-num" style="background:rgba(5,150,105,0.12);color:#059669;">7</div>
+            <div class="zone-info"><div class="zone-name">Netherlands</div><div class="zone-desc">Confirmed stable — no changes</div></div>
+            <div class="zone-status synced">SYNCED</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section id="stack" class="section-light">
+  <div class="container">
+    <div class="section-label reveal">Technology Stack</div>
+    <h2 class="section-title reveal">Deliberate tool selection for<br>API-first platform delivery</h2>
+    <p class="section-desc reveal">The stack combines workflow automation, API integration, and Python service logic in a practical enterprise delivery pattern.</p>
+    <div class="stack-grid">
+      <div class="stack-card reveal">
+        <div class="stack-bar" style="background:#3776AB;"></div>
+        <div class="stack-layer-tag">Engine</div>
+        <div class="stack-name" style="color:#3776AB;">Python</div>
+        <div class="stack-role">Sync Validation Service</div>
+        <div class="stack-detail">Core drift detection, state comparison, staged validation, and controlled update workflow for reliable operational synchronization.</div>
+      </div>
+      <div class="stack-card reveal">
+        <div class="stack-bar" style="background:#0E7490;"></div>
+        <div class="stack-layer-tag">API Gateway</div>
+        <div class="stack-name" style="color:#0E7490;">Flask</div>
+        <div class="stack-role">REST API Layer</div>
+        <div class="stack-detail">Exposes sync validation capabilities as HTTP endpoints consumed by n8n. Lightweight, stateless, and workflow-friendly.</div>
+      </div>
+      <div class="stack-card reveal">
+        <div class="stack-bar" style="background:#96BF48;"></div>
+        <div class="stack-layer-tag">Integration</div>
+        <div class="stack-name" style="color:#5a7a1a;">Shopify GraphQL</div>
+        <div class="stack-role">Platform APIs</div>
+        <div class="stack-detail">Admin API integration for delivery profiles, shipping zones, country mappings, and controlled rate updates — no browser automation.</div>
+      </div>
+      <div class="stack-card reveal">
+        <div class="stack-bar" style="background:#EA4B71;"></div>
+        <div class="stack-layer-tag">Orchestration</div>
+        <div class="stack-name" style="color:#EA4B71;">n8n</div>
+        <div class="stack-role">Workflow Engine</div>
+        <div class="stack-detail">Visual workflow engine coordinating the full 7-stage synchronization pipeline — from trigger to report generation.</div>
+      </div>
+      <div class="stack-card reveal">
+        <div class="stack-bar" style="background:#F59E0B;"></div>
+        <div class="stack-layer-tag">Protocol</div>
+        <div class="stack-name" style="color:#D97706;">JSON / REST</div>
+        <div class="stack-role">Operational Reporting</div>
+        <div class="stack-detail">Structured summaries for drift reports, validation outcomes, and execution logs. Clean interchange between platform layers.</div>
+      </div>
+      <div class="stack-card reveal">
+        <div class="stack-bar" style="background:#7C3AED;"></div>
+        <div class="stack-layer-tag">Tooling</div>
+        <div class="stack-name" style="color:#7C3AED;">AI-Assisted</div>
+        <div class="stack-role">Engineering Workflow</div>
+        <div class="stack-detail">Claude and ChatGPT used for architectural reasoning, documentation review, edge-case exploration, and debugging support throughout development.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEARNINGS -->
+<section id="learnings">
+  <div class="container">
+    <div class="section-label reveal">Key Engineering Learnings</div>
+    <h2 class="section-title reveal">What this demonstrates<br>about enterprise automation</h2>
+    <div class="learnings-list">
+      <div class="learning-item reveal">
+        <div class="learning-num">01</div>
+        <div class="learning-text"><strong>Operational complexity grows non-linearly at scale</strong> — manual workflows break long before teams realize it. Instrumentation must precede pain.</div>
+      </div>
+      <div class="learning-item reveal">
+        <div class="learning-num">02</div>
+        <div class="learning-text"><strong>Workflow design matters more than isolated automation</strong> — sequenced stages with validation checkpoints outperform individual scripts that run independently.</div>
+      </div>
+      <div class="learning-item reveal">
+        <div class="learning-num">03</div>
+        <div class="learning-text"><strong>Validation workflows reduce maintenance overhead</strong> by replacing slow, error-prone human comparison with workflow-driven drift detection and targeted operational updates.</div>
+      </div>
+      <div class="learning-item reveal">
+        <div class="learning-num">04</div>
+        <div class="learning-text"><strong>API-first systems are fundamentally more reliable, auditable, and scalable</strong> than browser automation — and produce structured operational records that teams can reason about.</div>
+      </div>
+      <div class="learning-item reveal">
+        <div class="learning-num">05</div>
+        <div class="learning-text"><strong>Idempotent execution is non-negotiable for operational tooling</strong> — systems must be safe to re-run at any time without duplicate updates, conflicts, or unintended state.</div>
+      </div>
+      <div class="learning-item reveal">
+        <div class="learning-num">06</div>
+        <div class="learning-text"><strong>Staged validation enables safer dry-runs</strong> — preventing unintended state changes and building operator confidence before production execution.</div>
+      </div>
+    </div>
+    <div class="transition-banner reveal">
+      "This project reflects enterprise systems experience applied to modern automation, platform operations, and API-first delivery."
+    </div>
+
+    <div style="margin-top:3.5rem;">
+      <div class="section-label reveal" style="margin-bottom:1rem;">Role Alignment</div>
+      <div class="role-grid reveal" style="flex-wrap:wrap;">
+        <div class="role-chip"><div class="role-dot"></div>Technical Program Manager</div>
+        <div class="role-chip"><div class="role-dot"></div>Engineering Manager</div>
+        <div class="role-chip"><div class="role-dot"></div>Platform Operations</div>
+        <div class="role-chip"><div class="role-dot"></div>Automation / AI Workflows</div>
+        <div class="role-chip"><div class="role-dot"></div>Shopify / eCommerce Infrastructure</div>
+        <div class="role-chip"><div class="role-dot"></div>Enterprise SaaS Delivery</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="reveal">
+        <div class="section-label" style="color:var(--teal-bright);">Let's connect</div>
+        <h2 class="contact-headline">
+          Platform built.<br>
+          <span class="accent">Operational.</span><br>
+          Ready to deliver.
+        </h2>
+        <div class="contact-cta-row">
+          <a class="demo-cta" href="https://youtu.be/_3XUWcg0UV4" target="_blank" rel="noopener noreferrer" aria-label="Watch workflow demo video in a new tab">
+            <span class="demo-cta-icon">▶</span>
+            Watch Workflow Demo
+          </a>
+          <div class="cta-note">See the workflow as working system proof.</div>
+        </div>
+        <div class="contact-links">
+          <a href="mailto:oak.rohit@gmail.com" class="contact-link">
+            <div class="contact-link-icon">EM</div>
+            oak.rohit@gmail.com
+          </a>
+          <a href="tel:+919967181489" class="contact-link">
+            <div class="contact-link-icon">PH</div>
+            +91 9967181489
+          </a>
+          <a href="https://linkedin.com/in/rohitaoak" target="_blank" class="contact-link">
+            <div class="contact-link-icon">in</div>
+            linkedin.com/in/rohitaoak
+          </a>
+          <div class="contact-link" style="cursor:default;">
+            <div class="contact-link-icon">LOC</div>
+            Mumbai, India
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="project-sidebar">
+          <h3>Project Summary</h3>
+          <ul class="sidebar-list">
+            <li>Multi-store sync workflow</li>
+            <li>Drift detection workflow</li>
+            <li>Staged validation workflow</li>
+            <li>Safe repeat execution</li>
+            <li>n8n workflow automation</li>
+            <li>Flask REST API gateway</li>
+            <li>Shopify GraphQL APIs</li>
+            <li>7-zone architecture preserved</li>
+            <li>API-first — zero UI automation</li>
+            <li>Python sync validation service</li>
+            <li>Dry-run validation workflow</li>
+            <li>Controlled update execution</li>
+          </ul>
+        </div>
+        <div style="margin-top:1.25rem; padding:1.25rem; background:rgba(14,116,144,0.08); border:1px solid rgba(14,116,144,0.2); border-radius:4px;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--teal-bright);letter-spacing:0.1em;margin-bottom:0.6rem;">EXPERIENCE CONTEXT</div>
+          <div style="font-size:0.875rem;color:var(--slate-light);line-height:1.6;">18+ years BFSI enterprise delivery · 65+ banking institutions · 5000+ branches · Modernizing into automation, AI workflows &amp; platform engineering</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar reveal">
+      <span>Rohit A. Oak · Shopify Multi-Store Shipping Orchestration Platform</span>
+      <span>Technical Delivery Manager · Mumbai, India</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = (i % 6) * 0.07 + 's';
+    observer.observe(el);
+  });
+
+  // Active nav link
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      if (window.scrollY >= section.offsetTop - 120) current = section.id;
+    });
+    navLinks.forEach(link => {
+      link.style.color = link.getAttribute('href') === '#' + current
+        ? 'var(--teal-bright)' : '';
+    });
+  });
+</script>
+</body>
+</html>
